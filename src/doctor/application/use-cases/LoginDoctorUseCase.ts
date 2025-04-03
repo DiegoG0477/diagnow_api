@@ -10,14 +10,15 @@ export class LoginDoctorUseCase {
         readonly encryptService: IEncryptPasswordService
     ) {}
 
-    async run(name: string, lastName: string, password: string): Promise<string | null> {
+    // --- UPDATED parameters ---
+    async run(email: string, password: string): Promise<string | null> {
         try {
-            // Get password hash using name and lastName (potential ambiguity)
-            const encodedPassword = await this.doctorRepository.getPasswordByNameAndLastName(name, lastName);
+            // --- UPDATED to use email ---
+            const encodedPassword = await this.doctorRepository.getPasswordByEmail(email);
 
             if (encodedPassword === null) {
-                console.warn(`Login attempt for non-existent or ambiguous doctor: ${name} ${lastName}`);
-                return null; // Doctor not found or name/lastName combination not unique/found
+                console.warn(`Login attempt for non-existent doctor email: ${email}`);
+                return null; // Doctor not found
             }
 
             const isPasswordValid = await this.encryptService.verifyPassword(
@@ -26,22 +27,19 @@ export class LoginDoctorUseCase {
             );
 
             if (!isPasswordValid) {
-                console.warn(`Invalid password attempt for doctor: ${name} ${lastName}`);
+                console.warn(`Invalid password attempt for doctor email: ${email}`);
                 return null; // Invalid password
             }
 
-            // Password is valid, get doctor details to obtain the ID for the token
-            const doctor = await this.doctorRepository.getDoctorByNameAndLastName(name, lastName);
+            // --- UPDATED to use email ---
+            const doctor = await this.doctorRepository.getDoctorByEmail(email);
 
             if (!doctor || !doctor.id) {
-                // This shouldn't happen if getPasswordByNameAndLastName returned a value, but check defensively
-                console.error(`Could not retrieve doctor details after successful password check for: ${name} ${lastName}`);
+                console.error(`Could not retrieve doctor details after successful password check for email: ${email}`);
                 return null;
             }
 
-            // Generate token using the doctor's unique ID
             const token = await this.tokenService.generateToken(doctor.id);
-
             return token;
 
         } catch (error) {

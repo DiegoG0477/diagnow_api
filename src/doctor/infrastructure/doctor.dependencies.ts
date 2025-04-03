@@ -3,10 +3,12 @@
 // Use Cases
 import { RegisterDoctorUseCase } from "../application/use-cases/RegisterDoctorUseCase";
 import { LoginDoctorUseCase } from "../application/use-cases/LoginDoctorUseCase";
+import { GetDoctorByEmailUseCase } from "../application/use-cases/GetDoctorByEmailUseCase"; // <-- Import new
 
 // Controllers
 import { RegisterDoctorController } from "./controllers/RegisterDoctorController";
 import { LoginDoctorController } from "./controllers/LoginDoctorController";
+import { GetDoctorByEmailController } from "./controllers/GetDoctorByEmailController";
 
 // Repository Implementation
 import { MysqlDoctorRepository } from "./adapters/MysqlDoctorRepository";
@@ -36,6 +38,9 @@ export const loginDoctorUseCase = new LoginDoctorUseCase(
     localEncryptPasswordService  // Use shared instance
 );
 
+export const getDoctorByEmailUseCase = new GetDoctorByEmailUseCase(mysqlDoctorRepository);
+
 // Instantiate Controllers
 export const registerDoctorController = new RegisterDoctorController(registerDoctorUseCase);
 export const loginDoctorController = new LoginDoctorController(loginDoctorUseCase);
+export const getDoctorByEmailController = new GetDoctorByEmailController(getDoctorByEmailUseCase);

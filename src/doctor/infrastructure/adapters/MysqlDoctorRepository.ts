@@ -1,55 +1,59 @@
-// doctor/infrastructure/adapters/mysql/MysqlDoctorRepository.ts
-import { query } from "../../../shared/database/mysqlAdapter"; // Adjust path as needed
+import { query } from "../../../shared/database/mysqlAdapter"; // Adjust path
 import { Doctor } from "../../domain/entities/Doctor";
 import { DoctorRepository } from "../../domain/DoctorRepository";
 
 export class MysqlDoctorRepository implements DoctorRepository {
 
     async registerDoctor(doctor: Doctor): Promise<Doctor | null> {
-        const sql = "INSERT INTO doctors(name, last_name, password) VALUES(?, ?, ?)";
-        const params: any[] = [doctor.name, doctor.last_name, doctor.password];
+        // --- UPDATED SQL and params ---
+        const sql = "INSERT INTO doctors(name, email, last_name, password) VALUES(?, ?, ?, ?)";
+        const params: any[] = [doctor.name, doctor.email, doctor.last_name, doctor.password];
         try {
             const [result]: any = await query(sql, params);
-
             if (result.insertId) {
-                // Return the doctor object with the generated ID
                 return new Doctor(
                     result.insertId.toString(),
                     doctor.name,
+                    doctor.email, // <-- Include email in returned object
                     doctor.last_name,
-                    '', // Don't return hash on successful registration response
-                    undefined // created_at not fetched back, could add another query if needed
+                    '', // Don't return hash
+                    undefined
                 );
             }
-            return null; // Insert failed
+            return null;
         } catch (error: any) {
             console.error("Error in registerDoctor:", error);
-            // Consider checking for specific error codes if needed
+             // Check for duplicate entry error code specifically for email if it's UNIQUE
+             if (error.code === 'ER_DUP_ENTRY') {
+                 console.error(`Attempted to register doctor with duplicate email: ${doctor.email}`);
+             }
             return null;
         }
     }
 
-    async getPasswordByNameAndLastName(name: string, lastName: string): Promise<string | null> {
-        // WARNING: Querying by non-unique fields. Add LIMIT 1 to ensure only one result.
-        // If multiple doctors have the same name/lastName, this will arbitrarily pick one.
-        const sql = "SELECT password FROM doctors WHERE name = ? AND last_name = ? LIMIT 1";
-        const params: any[] = [name, lastName];
+    // --- REMOVED Methods based on name/lastName ---
+    // async getPasswordByNameAndLastName(...) { ... }
+    // async getDoctorByNameAndLastName(...) { ... }
+
+    // --- ADDED/UPDATED Methods for email ---
+    async getPasswordByEmail(email: string): Promise<string | null> {
+        const sql = "SELECT password FROM doctors WHERE email = ?";
+        const params: any[] = [email];
         try {
             const [rows]: any = await query(sql, params);
             if (rows && rows.length > 0) {
-                return rows[0].password; // Return the hashed password
+                return rows[0].password;
             }
-            return null; // Doctor not found or name combination not unique
+            return null; // Doctor not found with this email
         } catch (error) {
-            console.error("Error in getPasswordByNameAndLastName:", error);
+            console.error("Error in getPasswordByEmail:", error);
             return null;
         }
     }
 
-    async getDoctorByNameAndLastName(name: string, lastName: string): Promise<Doctor | null> {
-        // WARNING: Querying by non-unique fields. Add LIMIT 1.
-        const sql = "SELECT id, name, last_name, created_at FROM doctors WHERE name = ? AND last_name = ? LIMIT 1"; // Exclude password
-        const params: any[] = [name, lastName];
+    async getDoctorByEmail(email: string): Promise<Doctor | null> {
+        const sql = "SELECT id, name, email, last_name, created_at FROM doctors WHERE email = ?"; // Exclude password
+        const params: any[] = [email];
         try {
             const [rows]: any = await query(sql, params);
             if (rows && rows.length > 0) {
@@ -57,20 +61,22 @@ export class MysqlDoctorRepository implements DoctorRepository {
                 return new Doctor(
                     row.id.toString(),
                     row.name,
+                    row.email, // <-- Map email
                     row.last_name,
-                    '', // Password hash is not needed here
+                    '', // Password hash not needed here
                     row.created_at
                 );
             }
             return null; // Doctor not found
         } catch (error) {
-            console.error("Error in getDoctorByNameAndLastName:", error);
+            console.error("Error in getDoctorByEmail:", error);
             return null;
         }
     }
 
+    // --- UPDATED getDoctorById to include email ---
     async getDoctorById(id: string): Promise<Doctor | null> {
-        const sql = "SELECT id, name, last_name, created_at FROM doctors WHERE id = ?"; // Exclude password
+        const sql = "SELECT id, name, email, last_name, created_at FROM doctors WHERE id = ?"; // Exclude password
         const params: any[] = [id];
         try {
             const [rows]: any = await query(sql, params);
@@ -79,8 +85,9 @@ export class MysqlDoctorRepository implements DoctorRepository {
                 return new Doctor(
                     row.id.toString(),
                     row.name,
+                    row.email, // <-- Map email
                     row.last_name,
-                    '', // Password hash not needed
+                    '',
                     row.created_at
                 );
             }
