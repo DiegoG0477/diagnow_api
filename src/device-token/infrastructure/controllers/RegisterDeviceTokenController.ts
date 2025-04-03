@@ -4,7 +4,7 @@ import { DeviceType } from '../../domain/DeviceTokenRepository';
 
 interface CustomRequest extends Request {
     user?: {
-      id: string;
+      userId: string;
       // Puedes incluir otras propiedades personalizadas si las necesitas
     }
   }
@@ -14,7 +14,7 @@ export class RegisterDeviceTokenController {
 
     async run(req: Request, res: Response): Promise<Response> {
         const customReq = req as CustomRequest;
-        const patientId = customReq.user?.id;
+        const patientId = customReq.user?.userId;
         
         const { token, deviceType } = req.body;
 
