@@ -24,6 +24,8 @@ export const authMiddleware = (
         ? authHeader.slice(7)
         : authHeader;
 
+    console.log(token)
+
     try {
         const decode = jwt.verify(token, secretKey) as jwt.JwtPayload;
 

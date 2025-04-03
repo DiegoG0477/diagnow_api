@@ -2,19 +2,11 @@ import { Request, Response } from 'express';
 import { RegisterDeviceTokenUseCase } from '../../application/use-cases/RegisterDeviceTokenUseCase';
 import { DeviceType } from '../../domain/DeviceTokenRepository';
 
-interface CustomRequest extends Request {
-    user?: {
-      userId: string;
-      // Puedes incluir otras propiedades personalizadas si las necesitas
-    }
-  }
-
 export class RegisterDeviceTokenController {
     constructor(readonly registerDeviceTokenUseCase: RegisterDeviceTokenUseCase) {}
 
     async run(req: Request, res: Response): Promise<Response> {
-        const customReq = req as CustomRequest;
-        const patientId = customReq.user?.userId;
+        const patientId = (req as any).userId;
         
         const { token, deviceType } = req.body;
 
