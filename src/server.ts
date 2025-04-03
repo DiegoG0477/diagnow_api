@@ -2,6 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import { Signale } from "signale";
 import dotenv from "dotenv";
+import cors from 'cors';
 
 import { doctorAuthRouter } from "./doctor/infrastructure/routes/DoctorAuthRouter";
 import { doctorRouter } from "./doctor/infrastructure/routes/DoctorRouter";
@@ -21,6 +22,9 @@ const signale = new Signale();
 
 app.use(express.json());
 app.use(morgan("dev"));
+
+app.use(cors());
+
 app.use("/patients", patientAuthRouter);
 app.use("/patients", patientRouter);
 app.use("/doctors", doctorAuthRouter);
