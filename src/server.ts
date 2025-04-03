@@ -7,6 +7,7 @@ import { doctorAuthRouter } from "./doctor/infrastructure/routes/DoctorAuthRoute
 import { doctorRouter } from "./doctor/infrastructure/routes/DoctorRouter";
 import { patientAuthRouter } from "./patient/infrastructure/routes/PatientAuthRouter";
 import { patientRouter } from "./patient/infrastructure/routes/PatientRouter";
+import { prescriptionRouter } from "./prescription/infrastructure/routes/PrescriptionRouter";
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use("/patients", patientAuthRouter);
 app.use("/patients", patientRouter);
 app.use("/doctors", doctorAuthRouter);
 app.use("/doctors", doctorRouter);
+app.use("/prescriptions", prescriptionRouter);
 
 app.listen(PORT, async () => {
     signale.success("Server online in port " + PORT);
