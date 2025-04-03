@@ -1,3 +1,4 @@
 node_modules
 .env
 dist
+diagnow-firebase-admin.json
