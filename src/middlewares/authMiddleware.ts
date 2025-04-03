@@ -4,20 +4,25 @@ import { NextFunction, Request, Response } from "express";
 
 dotenv.config();
 
-const secretKey: any = process.env.JWT_SECRET as string;
+const secretKey: string = process.env.JWT_SECRET as string;
 
 export const authMiddleware = (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
-    const token = req.header("Authorization");
+    const authHeader = req.header("Authorization");
 
-    if (!token) {
+    if (!authHeader) {
         return res.status(401).json({
             error: "unauthorized",
         });
     }
+
+    // Separa la parte "Bearer" del token y remueve espacios
+    const token = authHeader.startsWith("Bearer ")
+        ? authHeader.slice(7)
+        : authHeader;
 
     try {
         const decode = jwt.verify(token, secretKey) as jwt.JwtPayload;
