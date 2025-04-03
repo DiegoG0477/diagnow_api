@@ -12,6 +12,8 @@ import { GetPrescriptionsController } from "./controllers/GetPrescriptionsContro
 import { GetPrescriptionsByPatientIdController } from "./controllers/GetPrescriptionsByPatientIdController";
 import { GetPrescriptionByIdController } from "./controllers/GetPrescriptionByIdController";
 
+import { mysqlDeviceTokenRepository } from '../../device-token/infrastructure/deviceToken.dependencies';
+
 // Repository Implementation
 import { MysqlPrescriptionRepository } from "./adapters/MysqlPrescriptionRepository";
 
@@ -23,7 +25,7 @@ export const mysqlPrescriptionRepository = new MysqlPrescriptionRepository();
 
 // Instantiate Services
 // Firebase Admin SDK initialization happens inside the service constructor or a shared setup
-export const fcmNotificationService = new FcmNotificationService();
+export const fcmNotificationService = new FcmNotificationService(mysqlDeviceTokenRepository);
 
 // Instantiate Use Cases (Inject dependencies)
 export const createPrescriptionUseCase = new CreatePrescriptionUseCase(

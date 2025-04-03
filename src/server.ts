@@ -9,6 +9,7 @@ import { patientAuthRouter } from "./patient/infrastructure/routes/PatientAuthRo
 import { patientRouter } from "./patient/infrastructure/routes/PatientRouter";
 import { prescriptionRouter } from "./prescription/infrastructure/routes/PrescriptionRouter";
 import { medicationRouter } from "./medication/infrastructure/routes/MedicationRouter";
+import { deviceTokenRouter } from "./device-token/infrastructure/routes/DeviceTokenRouter";
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use("/doctors", doctorAuthRouter);
 app.use("/doctors", doctorRouter);
 app.use("/prescriptions", prescriptionRouter);
 app.use("/medications", medicationRouter);
+app.use('/device-tokens', deviceTokenRouter);
 
 app.listen(PORT, async () => {
     signale.success("Server online in port " + PORT);
